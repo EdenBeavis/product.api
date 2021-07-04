@@ -8,3 +8,5 @@ Here lies a testament to my true skill haha.
 
 ##Steps taken
 - Created repo and added soloution.
+- Rename Project to make sense of its purpose.
+- Updated framework verison (Better security).
