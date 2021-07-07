@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Net.Http;
 
@@ -11,7 +12,7 @@ namespace product.api.test.Infrastructure
             AllowAutoRedirect = false
         });
 
-        //public RefDataProvider RefDataProvider => Services.GetService<RefDataProvider>();
+        public RefDataProvider RefDataProvider => Services.GetService<RefDataProvider>();
 
         protected override IHostBuilder CreateHostBuilder()
         {

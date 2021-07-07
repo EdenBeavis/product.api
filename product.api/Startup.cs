@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using MediatR;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using NLog.Extensions.Logging;
+using product.api.Infrastructure.Data;
 
 namespace product.api
 {
@@ -16,16 +21,22 @@ namespace product.api
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
             SetupDatabases(services);
             SetupLogging(services);
             SetupTestDependencies(services);
+
+            services.AddMediatR(typeof(Startup));
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Product API", Version = "v1" });
+            });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
@@ -45,6 +56,13 @@ namespace product.api
             {
                 endpoints.MapControllers();
             });
+
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Product API V1");
+                c.RoutePrefix = string.Empty;
+            });
         }
 
         protected virtual void SetupTestDependencies(IServiceCollection services)
@@ -53,12 +71,11 @@ namespace product.api
 
         protected virtual void SetupDatabases(IServiceCollection services)
         {
-            // For when I move to entity framework
-            //var connection = new SqliteConnection("DataSource=:memory:");
+            var connection = new SqliteConnection(Configuration.GetConnectionString("ProductsDb"));
 
-            //connection.Open();
-            //services.AddEntityFrameworkSqlite();
-            //services.AddDbContext<>(options => options.UseSqlite(connection));
+            connection.Open();
+            services.AddEntityFrameworkSqlite();
+            services.AddDbContext<ProductsDbContext>(options => options.UseSqlite(connection));
         }
 
         protected void SetupLogging(IServiceCollection services)

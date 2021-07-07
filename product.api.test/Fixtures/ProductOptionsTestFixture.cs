@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using product.api.Infrastructure.Data;
 using product.api.Infrastructure.Data.Entities;
-using product.api.Models.Products;
+using product.api.Models.ProductOptions;
 using product.api.test.Fakes.Builders;
 using product.api.test.Infrastructure;
 using System;
@@ -15,43 +15,47 @@ using System.Threading.Tasks;
 
 namespace product.api.test.Fixtures
 {
-    public class ProductsTestFixture : TestWebApplicationFactory
+    public class ProductOptionsTestFixture : TestWebApplicationFactory
     {
         private const string ProductApi = "api/products";
 
-        public async Task<(HttpResponseMessage message, string stringContent)> GetProducts(string query)
+        public async Task<(HttpResponseMessage message, string stringContent)> GetProductOptions(Guid productId, string query = "")
         {
-            var response = await Client.GetAsync($"{ProductApi}{query}");
+            var optionsPath = $"{productId}/options";
+            var response = await Client.GetAsync($"{ProductApi}/{optionsPath}/{query}");
             var responseString = await response.Content.ReadAsStringAsync();
 
             return (response, responseString);
         }
 
-        public async Task<(HttpResponseMessage message, string stringContent)> PostProduct(ProductDto productDto)
+        public async Task<(HttpResponseMessage message, string stringContent)> PostProductOption(Guid productId, ProductOptionDto productOptionDto)
         {
-            var json = JsonConvert.SerializeObject(productDto);
+            var optionsPath = $"{productId}/options";
+            var json = JsonConvert.SerializeObject(productOptionDto);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await Client.PostAsync($"{ProductApi}/", stringContent);
+            var response = await Client.PostAsync($"{ProductApi}/{optionsPath}", stringContent);
             var responseString = await response.Content.ReadAsStringAsync();
 
             return (response, responseString);
         }
 
-        public async Task<(HttpResponseMessage message, string stringContent)> UpdateProduct(Guid id, ProductDto productDto)
+        public async Task<(HttpResponseMessage message, string stringContent)> UpdateProductOption(Guid productId, Guid id, ProductOptionDto productOptionDto)
         {
-            var json = JsonConvert.SerializeObject(productDto);
+            var optionsPath = $"{productId}/options";
+            var json = JsonConvert.SerializeObject(productOptionDto);
             var stringContent = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await Client.PutAsync($"{ProductApi}/{id}/", stringContent);
+            var response = await Client.PutAsync($"{ProductApi}/{optionsPath}/{id}/", stringContent);
             var responseString = await response.Content.ReadAsStringAsync();
 
             return (response, responseString);
         }
 
-        public async Task<(HttpResponseMessage message, string stringContent)> DeleteProduct(Guid id)
+        public async Task<(HttpResponseMessage message, string stringContent)> DeleteProductOption(Guid productId, Guid id)
         {
-            var response = await Client.DeleteAsync($"{ProductApi}/{id}/");
+            var optionsPath = $"{productId}/options";
+            var response = await Client.DeleteAsync($"{ProductApi}/{optionsPath}/{id}/");
             var responseString = await response.Content.ReadAsStringAsync();
 
             return (response, responseString);
